@@ -1,4 +1,4 @@
-# first_flutter_project
+# first_flutter_project_life_counter
 
 This is my first Flutter project. 
 It has buttons to increment and decrement the value in the center.
