@@ -1,7 +1,7 @@
 # first_flutter_project
 
 This is my first Flutter project. 
-It has a buttons to increment and decrement the value in the center.
+It has buttons to increment and decrement the value in the center.
 
 ## Getting Started
 
