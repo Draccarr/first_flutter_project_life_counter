@@ -1,7 +1,10 @@
+import 'package:audioplayers/audio_cache.dart';
 import 'package:first_flutter_project/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'fancy_button.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,6 +12,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return MaterialApp(
       title: 'First Flutter Demo',
       // theme: ThemeData(
@@ -23,8 +28,9 @@ class MyApp extends StatelessWidget {
       //   // is not restarted.
       //   primarySwatch: Colors.orange,
       // ),
+      debugShowCheckedModeBanner: false,
       theme: defaultTheme(),
-      home: MyHomePage(title: 'Halloween Life Counter'),
+      home: MyHomePage(title: 'Life Counter'),
     );
   } //end build method
 } //end MyApp class
@@ -63,9 +69,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void decrementCounter() {
     setState(() {
-      if (_total > 0) _total--;
+      _total--;
     });
   } //end decrementCounter
+
+  resetCounter() {
+    // AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+    AudioCache player = new AudioCache();
+    const alarmAudioPath = 'sounds/buttonSoundTwo.wav';
+    player.play(alarmAudioPath);
+    setState(() {
+      _total = 40;
+    });
+  } //end resetCounter
 
   @override
   Widget build(BuildContext context) {
@@ -75,53 +91,102 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      backgroundColor: defaultTheme().backgroundColor,
-      // backgroundColor: Colors.black,
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Life Total',
-              style: Theme.of(context).textTheme.body1,
-            ),
-            FittedBox(
-              child: Text(
-                _total.toString(),
-                style: Theme.of(context).textTheme.headline,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Stack(
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: FancyButton(
-                      onPressed: decrementCounter,
-                      myIconData: Icons.arrow_downward,
-                      message: "Decrease",
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: FancyButton(
-                      onPressed: incrementCounter,
-                      myIconData: Icons.arrow_upward,
-                      message: "Increase",
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
+        backgroundColor: defaultTheme().backgroundColor,
+        // backgroundColor: Colors.black,
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
         ),
-      ),
-    );
+        body: Builder(builder: (context) {
+          return Center(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage('assets/images/skyBackground.png'),
+                          fit: BoxFit.fitWidth)),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Stack(
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: FancyButton(
+                              onPressed: () {
+                                resetCounter();
+                                Scaffold.of(context).removeCurrentSnackBar();
+                                SnackBar snackBar = SnackBar(
+                                  duration: Duration(milliseconds: 500),
+                                  shape: StadiumBorder(),
+                                  content: Row(
+                                    children: <Widget>[
+                                      Image.asset('assets/images/logo.png',
+                                          width: 100, height: 100),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text("Your life total has been reset."),
+                                    ],
+                                  ),
+                                  // content:
+                                  //     Image.asset('assets/images/background.png',),
+                                );
+                                Scaffold.of(context).showSnackBar(snackBar);
+                              },
+                              myIconData: Icons.restore,
+                              message: "Reset",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: FittedBox(
+                        child: Text(
+                          _total.toString(),
+                          style: _total <= 0
+                              ? Theme.of(context).textTheme.display2
+                              : Theme.of(context).textTheme.display1,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Stack(
+                          children: <Widget>[
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: FancyButton(
+                                onPressed: decrementCounter,
+                                myIconData: Icons.arrow_downward,
+                                message: "Decrease",
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: FancyButton(
+                                onPressed: incrementCounter,
+                                myIconData: Icons.arrow_upward,
+                                message: "Increase",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }));
   } //end Widget Build
 } //end _MyHomePageState
